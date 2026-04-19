@@ -62,3 +62,23 @@ select
 "Sales",
 sum("Sales") over (order by "Order Date") as "running_total"
 from superstore_cleaned
+
+--Retention 
+with customer_orders as (
+	select "Customer ID",
+	count(distinct "Order ID") as order_count
+	from superstore_cleaned sc 
+	group by "Customer ID"
+	)
+select 
+	case 
+		when order_count=1 then 'Single Purchase'
+		when order_count between 2 and 5 then 'Repeat Customer'
+		else 'Loyal Customer'
+		end as customer_segment,
+	count(*) as total_customers,
+	round(count(*) * 100 /sum(count(*)) over(), 2) as percentage 
+	from customer_orders 
+	group by 1
+	order by 2 desc
+	
