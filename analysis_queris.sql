@@ -1,84 +1,112 @@
 -- Total sales
-select 
-SUM("Sales") as total_sales
-from superstore_cleaned sc
+SELECT 
+    ROUND(SUM("Sales")::numeric, 2) AS total_sales
+FROM superstore_cleaned;  
 
---Sales by state
-select 
-"State",
-count("Order ID") as total_orders, 
-round(sum("Sales")::numeric,2) as total_sales
-from superstore_cleaned sc 
-group by "State" 
-order by total_sales desc
+-- Sales by state
+SELECT 
+    "State",
+    COUNT(DISTINCT "Order ID") AS total_orders,
+    ROUND(SUM("Sales")::numeric, 2) AS total_sales
+FROM superstore_cleaned
+GROUP BY "State"
+ORDER BY total_sales DESC;
 
---Sales by category
-select 
-"Category",
-count("Order ID") as total_orders, 
-round(sum("Sales")::numeric,2) as total_sales
-from superstore_cleaned sc 
-group by "Category"
-order by total_sales desc
+-- Sales by category
+SELECT 
+    "Category",
+    COUNT(DISTINCT "Order ID") AS total_orders,
+    ROUND(SUM("Sales")::numeric, 2) AS total_sales
+FROM superstore_cleaned
+GROUP BY "Category"
+ORDER BY total_sales DESC;
 
---Top 10 customers
-select 
-"Customer Name",
-count("Order ID") as total_orders, 
-round(sum("Sales")::numeric,2) as total_sales
-from superstore_cleaned sc 
-group by "Customer Name" 
-order by total_sales desc
-limit 10
+-- Top 10 customers
+SELECT 
+    "Customer ID",
+    "Customer Name",
+    COUNT(DISTINCT "Order ID") AS total_orders,
+    ROUND(SUM("Sales")::numeric, 2) AS total_sales
+FROM superstore_cleaned
+GROUP BY "Customer ID", "Customer Name"
+ORDER BY total_sales DESC
+LIMIT 10;
 
---Top 10 products
-select 
-"Product Name",
-count("Order ID") as total_orders, 
-round(sum("Sales")::numeric,2) as total_sales
-from superstore_cleaned sc 
-group by "Product Name" 
-order by total_sales desc
-limit 10
+-- Top 10 products
+SELECT 
+    "Product Name",
+    COUNT(DISTINCT "Order ID") AS total_orders,
+    ROUND(SUM("Sales")::numeric, 2) AS total_sales
+FROM superstore_cleaned
+GROUP BY "Product Name"
+ORDER BY total_sales DESC
+LIMIT 10;
 
---Sales by month
-select 
-date_trunc('month', "Order Date"::timestamp) as month,
-round(sum("Sales")::numeric,2) as monthly_sales
-from superstore_cleaned sc 
-group by month
-order by month
+-- Sales by month
+SELECT 
+    DATE_TRUNC('month', "Order Date"::timestamp) AS month,
+    ROUND(SUM("Sales")::numeric, 2) AS monthly_sales
+FROM superstore_cleaned
+GROUP BY month
+ORDER BY month;
 
---Average order value
-select "Segment",
-round(avg("Sales")::numeric, 2) as avg_order_value
-from superstore_cleaned sc 
-group by "Segment" 
-order by avg_order_value 
+-- Average order value by segment
+WITH order_totals AS (
+    SELECT
+        "Order ID",
+        "Segment",
+        SUM("Sales") AS order_sales
+    FROM superstore_cleaned
+    GROUP BY "Order ID", "Segment"
+)
 
---Window Functions 
-select 
-"Order Date",
-"Sales",
-sum("Sales") over (order by "Order Date") as "running_total"
-from superstore_cleaned
+SELECT
+    "Segment",
+    ROUND(AVG(order_sales)::numeric, 2) AS average_order_value
+FROM order_totals
+GROUP BY "Segment"
+ORDER BY average_order_value DESC;
 
---Retention 
-with customer_orders as (
-	select "Customer ID",
-	count(distinct "Order ID") as order_count
-	from superstore_cleaned sc 
-	group by "Customer ID"
-	)
-select 
-	case 
-		when order_count=1 then 'Single Purchase'
-		when order_count between 2 and 5 then 'Repeat Customer'
-		else 'Loyal Customer'
-		end as customer_segment,
-	count(*) as total_customers,
-	round(count(*) * 100 /sum(count(*)) over(), 2) as percentage 
-	from customer_orders 
-	group by 1
-	order by 2 desc
+-- Running total of sales
+WITH daily_sales AS (
+    SELECT
+        "Order Date"::date AS order_date,
+        SUM("Sales") AS daily_sales
+    FROM superstore_cleaned
+    GROUP BY "Order Date"::date
+)
+
+SELECT
+    order_date,
+    ROUND(daily_sales::numeric, 2) AS daily_sales,
+    ROUND(
+        SUM(daily_sales) OVER (ORDER BY order_date)::numeric,
+        2
+    ) AS running_total
+FROM daily_sales
+ORDER BY order_date;
+
+-- Customer retention
+WITH customer_orders AS (
+    SELECT
+        "Customer ID",
+        COUNT(DISTINCT "Order ID") AS order_count
+    FROM superstore_cleaned
+    GROUP BY "Customer ID"
+)
+
+SELECT
+    CASE
+        WHEN order_count = 1 THEN 'Single Purchase'
+        WHEN order_count BETWEEN 2 AND 5 THEN 'Repeat Customer'
+        ELSE 'Loyal Customer'
+    END AS customer_segment,
+    COUNT(*) AS total_customers,
+    ROUND(
+        COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (),
+        2
+    ) AS percentage
+FROM customer_orders
+GROUP BY 1
+ORDER BY total_customers DESC;
 	

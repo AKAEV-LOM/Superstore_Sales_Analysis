@@ -1,39 +1,91 @@
-# 📊 Анализ розничных продаж сети Superstore
+# 📊 Superstore Sales Analysis
 
-Комплексный проект по анализу транзакционных данных: от первичной обработки сырого датасета до построения интерактивной BI-отчетности и формирования бизнес-рекомендаций.
+End-to-end analysis of retail sales data, covering data cleaning, exploratory analysis, SQL analytics, and interactive BI reporting.
 
-##   Стек технологий
-* **Python (Pandas):** ETL-процессы, очистка данных (handling missing values) и приведение типов.
-* **SQL (PostgreSQL):** Аналитические запросы, сегментация клиентской базы, работа с CTE и оконными функциями.
-* **Power BI:** Создание мер на языке DAX, визуализация ключевых KPI и настройка интерактивных дашбордов.
+## 🛠️ Tech Stack
 
-##   Ключевые этапы работы
-1. **Data Cleaning (Python):** - Обработаны пропуски в геолокации (`Postal Code`).
-   - Столбцы с датами приведены к формату `datetime` для анализа временных рядов.
-2. **SQL Аналитика:**
-   - Рассчитан общий объем выручки ($2.26M) и средний чек ($230.77).
-   - Выявлены штаты-лидеры и наиболее востребованные категории товаров.
-   - Проведен **Retention-анализ** для оценки лояльности аудитории.
-3. **Визуализация (Power BI):** - Построены отчеты по динамике продаж, долям категорий и географическому распределению.
-   - Настроены срезы (фильтры) по регионам и сегментам рынка.
+- **Python (Pandas)** — data cleaning, preprocessing, data validation, and exploratory analysis.
+- **PostgreSQL** — analytical queries, customer segmentation, CTEs, and window functions.
+- **Power BI** — KPI development, DAX measures, data visualization, and interactive dashboards.
 
-##   Глубокая аналитика: Лояльность клиентов
-С помощью SQL-запроса была проведена сегментация базы на разовых и лояльных покупателей:
+## 📌 Project Overview
 
-![Интерактивный отчет](images/Retention_results.png)
+The goal of this project is to analyze retail sales data and identify key trends in revenue, customer behavior, product performance, and geographic distribution.
 
-*Результат:* Более **98%** клиентов являются повторными, что говорит о высоком качестве продукта и стабильном ядре аудитории.
+The project covers the full analytical workflow:
 
-##   Дашборд
-![Интерактивный отчет](images/dash1.png)
+**Raw Data → Data Cleaning → SQL Analysis → Power BI Dashboard → Business Insights**
 
-![Интерактивный отчет](images/dash2.png)
-*(Интерактивный отчет с фильтрацией по регионам и сегментам)*
+## 🔧 Data Preparation
 
-## 💡 Бизнес-рекомендации
-* **Сезонное планирование:** Учитывая пик продаж в 4-м квартале (Q4), рекомендуется увеличить складские запасы и рекламную активность к октябрю.
-* **Фокус на драйверы роста:** Категория **Technology** генерирует максимальную выручку. Расширение ассортимента в этой нише даст наибольший финансовый эффект.
-* **Географическая экспансия:** Оптимизация логистики в штатах **California** и **New York** позволит сократить издержки, так как на них приходится основной объем заказов.
+Data preprocessing was performed using Python and Pandas.
 
----
-**Автор:** Акаев Л-А. Л.
+Key steps:
+
+- Checked the dataset structure and data types.
+- Converted `Order Date` and `Ship Date` to datetime format.
+- Checked for missing values and duplicates.
+- Removed records with missing `Postal Code` values.
+- Created additional `Year` and `Month` fields for time-based analysis.
+- Validated key metrics after cleaning.
+- Exported the cleaned dataset for further SQL and BI analysis.
+
+## 📊 Key Metrics
+
+| Metric | Value |
+|---|---:|
+| Total Revenue | **$2,252,607.41** |
+| Total Orders | **4,916** |
+| Average Order Value | **$458.22** |
+
+## 🧮 SQL Analysis
+
+PostgreSQL was used to perform analytical queries, including:
+
+- Total revenue calculation
+- Sales analysis by state and category
+- Top 10 customers by revenue
+- Top 10 products by revenue
+- Monthly sales trends
+- Average Order Value by customer segment
+- Running total using window functions
+- Customer segmentation based on purchase frequency
+
+## 👥 Customer Retention
+
+Customers were segmented based on the number of unique orders:
+
+- **Single Purchase** — 1 order
+- **Repeat Customer** — 2–5 orders
+- **Loyal Customer** — 6+ orders
+
+![Customer Retention Analysis](images/Retention_results.png)
+
+## 📈 Power BI Dashboard
+
+The cleaned dataset was used to build an interactive Power BI dashboard for analyzing:
+
+- Revenue trends
+- Product categories
+- Geographic performance
+- Customer segments
+- Key sales KPIs
+
+![Power BI Dashboard](images/dash1.png)
+
+![Power BI Dashboard](images/dash2.png)
+
+## 💡 Business Insights & Recommendations
+
+### Seasonal Planning
+
+Sales activity increases during **Q4**, suggesting that inventory and marketing efforts should be increased ahead of the holiday season.
+
+### Technology as a Growth Driver
+
+**Technology** is the leading category by revenue. Expanding the product assortment and maintaining availability in this category may provide additional revenue opportunities.
+
+### Geographic Performance
+
+**California and New York** are among the strongest markets by sales volume. Optimizing inventory allocation and logistics in these markets could improve operational efficiency.
+
